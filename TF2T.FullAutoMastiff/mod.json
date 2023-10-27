@@ -1,0 +1,29 @@
+{
+    "Name": "Full Auto Mastiff",
+    "Description": ":)",
+    "Version": "1.0.0",
+    "LoadPriority": "0",
+    "ConVars": [
+        {
+            "Name": "fam_enabled",
+            "DefaultValue": "0"
+        },
+        {
+            "Name": "fam_grapple_duration",
+            "DefaultValue": "0.15"
+        },
+        {
+            "Name": "fam_attack_button",
+            "DefaultValue": "106"
+        }
+    ],
+    "Scripts": [
+        {
+            "Path": "fam.gnut",
+            "RunOn": "MP",
+            "ClientCallback": {
+                "After": "fam_Init"
+            }
+        }
+    ]
+}
