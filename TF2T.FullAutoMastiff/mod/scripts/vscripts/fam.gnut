@@ -1,0 +1,55 @@
+global function fam_Init
+
+bool automaticFiringRunning = false
+
+void function fam_Init()
+{
+    RegisterButtonPressedCallback( GetConVarInt( "fam_attack_button" ), fam_LocalClientPlayerStartedFiring )
+    RegisterButtonReleasedCallback( GetConVarInt( "fam_attack_button" ), fam_LocalClientPlayerStoppedFiring )
+}
+
+void function fam_LocalClientPlayerStartedFiring( int buttonEnum )
+{
+    if( GetConVarInt( "fam_enabled" ) == 0 )
+    {
+        return
+    }
+    if( GetLocalClientPlayer().GetActiveWeapon() == null )
+    {
+        //print( "[FAM][DEBUG] Local client player weapon is null" )
+        return
+    }
+    if( GetLocalClientPlayer().GetActiveWeapon().GetWeaponClassName() == "mp_weapon_mastiff" )
+    {
+        thread fam_StartAutomaticFiring( GetLocalClientPlayer().GetActiveWeapon() )
+        return
+    }
+}
+
+void function fam_LocalClientPlayerStoppedFiring( int buttonEnum )
+{
+    //print( "[FAM][DEBUG] Local client player stopped firing" )
+    automaticFiringRunning = false
+}
+
+void function fam_StartAutomaticFiring( entity weaponEntity )
+{
+    //print( "[FAM][DEBUG] Automatic firing thread started" )
+    automaticFiringRunning = true
+    while( automaticFiringRunning == true )
+    {
+        GetLocalClientPlayer().ClientCommand( "+attack" )
+        wait( 0.0 )
+        GetLocalClientPlayer().ClientCommand( "-attack" )
+        if( IsValid( GetLocalClientPlayer() ) && GetLocalClientPlayer().GetActiveWeapon() == null || GetLocalClientPlayer().GetActiveWeapon() != weaponEntity )
+        {
+            //print( "[FAM][DEBUG] Local client player weapon is null" )
+            automaticFiringRunning = false
+            break
+        }
+        GetLocalClientPlayer().ClientCommand( "+offhand1" )
+        wait( GetConVarFloat( "fam_grapple_duration" ) )
+        GetLocalClientPlayer().ClientCommand( "-offhand1" )
+    }
+    //print( "[FAM][DEBUG] Automatic firing thread ended" )
+}
